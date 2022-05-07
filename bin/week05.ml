@@ -1,5 +1,8 @@
 open Assignment
 
+let toi n = Toi(Dir, n)
+let hatten n = Hatten(Dir, n)
+
 let exec_2_1 = Exec ["(1+2)/3-4;;", "# - = -3"]
 let exec_2_2 = Exec ["4*3 < 2-1;;", "# - = false"]
 let exec_3 = Exec ["let x = 1;;",                           "# val x = 1";
@@ -18,10 +21,10 @@ let exec_h3_2 = Exec ["let x = 10;;",                          "# val x = 10";
 let build = Build(None, [])
 
 let assignments =
-  [ToiDir 1, [];
-   ToiDir 2, [build; exec_2_1; exec_2_2];
-   ToiDir 3, [build; exec_3];
-   ToiDir 4, [build; exec_2_1; exec_2_2; exec_3; exec_4_1; exec_4_2];
-   HattenDir 1, [build];
-   HattenDir 2, [build; exec_h2];
-   HattenDir 3, [build; exec_h3_1; exec_h3_2]]
+  [toi 1, [];
+   toi 2, [build; exec_2_1; exec_2_2];
+   toi 3, [build; exec_3];
+   toi 4, [build; exec_2_1; exec_2_2; exec_3; exec_4_1; exec_4_2];
+   hatten 1, [build];
+   hatten 2, [build; exec_h2];
+   hatten 3, [build; exec_h3_1; exec_h3_2]]

@@ -50,7 +50,7 @@ let assiginments =
     6, Week06.assignments;
     7, Week07.assignments;
     8, Week08.assignments;
-    9, Week09.assignments]
+    9, Week09.assignments;
    10, Week10.assignments]
 
 let assoc_assignments () =
@@ -74,9 +74,5 @@ let main () =
   |> List.iter show_results;
 
   finalize()
-
-let () =
-  Format.printf "START@.";
-  Array.iter (Format.printf "CURRENT_DIR: %s@.") (Sys.readdir ".")
 
 let () = if not !Sys.interactive then main()

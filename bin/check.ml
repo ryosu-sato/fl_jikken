@@ -74,7 +74,7 @@ let rec normalize_output acc_rev ss =
       normalize_output acc_rev' ss'
   | s::ss' -> normalize_output (s::acc_rev) ss'
 
-let parse_output s =
+let parse_ocaml_output s =
   let map =
     ["Error: Unbound value ", (fun x -> Error (Value_not_found x));
      "Error: Unbound type constructor ", (fun x -> Error (Type_not_found x));
@@ -92,11 +92,23 @@ let parse_output s =
       let len = String.length prefix in
       f @@ String.sub s len (String.length s - len)
 
+let parse_prolog_error errors =
+  match errors with
+  | [] -> invalid_arg __FUNCTION__
+  | e::_ ->
+      assert (String.starts_with e "ERROR: ");
+      match String.split_on_char ':' e with
+      | ["ERROR"; _s2; _s3; " Undefined procedure"; s5] ->
+          Predicate_not_found (String.remove_prefix ~prefix:" " s5)
+      | _ -> Unknown_error e
+
 let eval_prolog_file filename query =
-  let cmd = Printf.sprintf "swipl -s %s -g '%s.' -t halt" filename query in
-  let cin,cout = Unix.open_process cmd in
-  let ss = input_lines cin in
-  ignore @@ Unix.close_process (cin,cout);
+  let cmd = Printf.sprintf "swipl -s %s -g '%s' -t halt" filename query in
+  let cin,cout,cerr = Unix.open_process_full cmd [||] in
+  let result = input_lines cin in
+  let error = input_lines cerr in
+  ignore @@ Unix.close_process_full (cin,cout,cerr);
+(*
   let aux s =
     let prefix = "ERROR: " in
     if String.starts_with prefix s then
@@ -105,11 +117,13 @@ let eval_prolog_file filename query =
       Either.Left s
   in
   let r,errors = List.partition_map aux ss in
+ *)
   debug "query: %s@." query;
-  List.iter (debug "output: %s@.") r;
-  List.iter (debug "errors: %s@.") errors;
+  debug "cmd: %s@." cmd;
+  List.iter (debug "output: %s@.") result;
+  List.iter (debug "errors: %s@.") error;
   debug "@.";
-  r, errors
+  result, error
 
 let eval_ml_file filename x =
   let cmd = Printf.sprintf "ocaml -noprompt -color never -init %s" filename in
@@ -126,11 +140,11 @@ let eval_ml_file filename x =
     | s::ss -> s, ss
   in
   close_in cin;
-  let result = parse_output s in
+  let result = parse_ocaml_output s in
   let errors =
     ss_rev
     |> List.filter (fun s -> String.starts_with s "Error: ")
-    |> List.map parse_output
+    |> List.map parse_ocaml_output
     |> List.map Result.get_error
   in
   match result with
@@ -277,11 +291,23 @@ let check_item filename ?(is_dir=Sys.is_directory filename) item =
         |> String.concat ","
         |> Printf.sprintf "%s(%s)." p
       in
-      begin
-      match eval_prolog_file filename query with
-      | _ -> assert false
-      end
-  | _ -> assert false
+      let r =
+        match eval_prolog_file filename query with
+        | [],[] -> OK None
+        | [],es -> parse_prolog_error es
+        | _ -> assert false
+      in
+      [r]
+  | Query(query, expect) ->
+      let rs,es = eval_prolog_file filename query in
+      let r =
+        if expect = rs then
+          OK None
+        else
+          parse_prolog_error es
+      in
+      [r]
+
 
 let check_file t items =
   let is_dir = is_directory t in

@@ -2,10 +2,13 @@ open Assignment
 
 let build = Build(None, [])
 
+let toi n = Toi(Dir, n)
+let hatten n = Hatten(Dir, n)
+
 let assignments =
-  [ToiDir 1, [build];
-   ToiDir 2, [build];
-   ToiDir 3, [build];
-   ToiDir 4, [build];
-   HattenDir 1, [build];
-   HattenDir 2, [build]]
+  [toi 1, [build];
+   toi 2, [build];
+   toi 3, [build];
+   toi 4, [build];
+   hatten 1, [build];
+   hatten 2, [build]]

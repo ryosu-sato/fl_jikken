@@ -7,4 +7,4 @@ let may_be_included =
    "tySyntax.cmo"]
 
 let assignments =
-  [ToiDir 1, [Build(None, may_be_included)]]
+  [Toi(Dir, 1), [Build(None, may_be_included)]]

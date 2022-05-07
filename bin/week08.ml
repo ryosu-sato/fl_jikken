@@ -6,7 +6,9 @@ let ty_subst = Type("ty_subst", "subst -> ty -> ty")
 let compose = Type("compose", "subst -> subst -> subst")
 let unify = Type("unify", "(ty * ty) list -> subst")
 
+let toi n = Toi(Dir, n)
+
 let assignments =
-  [Toi 2, [ty; subst; ty_subst];
-   Toi 3, [ty; subst; compose];
-   Toi 4, [ty; subst; unify]]
+  [toi 2, [ty; subst; ty_subst];
+   toi 3, [ty; subst; compose];
+   toi 4, [ty; subst; unify]]

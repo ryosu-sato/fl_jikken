@@ -85,13 +85,9 @@ module Files = struct
 end
 
 let rec input_lines cin =
-  let s = input_line cin in
-  let ss =
-    try
-      input_lines cin
-    with End_of_file -> []
-  in
-  s :: ss
+  match input_line cin with
+  | s -> s :: input_lines cin
+  | exception End_of_file -> []
 
 let time () =
   let {Unix.tm_sec; tm_min; tm_hour; tm_mday; tm_mon; tm_year; _} = Unix.localtime @@ Unix.time() in

@@ -1,8 +1,7 @@
 type t =
-  | Toi of int
-  | ToiDir of int
-  | Hatten of int
-  | HattenDir of int
+  | Toi of kind * int
+  | Hatten of kind * int
+and kind = Dir | ML | Prolog
 
 type item =
   (* Items for OCaml files *)
@@ -34,6 +33,7 @@ type 'a result =
   | Type_not_found of string
   | Constructor_not_found of string
   | Module_not_found of string
+  | Predicate_not_found of string
   | Incorrect_result
   | Uncaught_exception
   | Object_file_found of string
@@ -42,21 +42,23 @@ type 'a result =
   | Unknown_error of string
 
 let is_directory = function
-  | Toi _ | Hatten _ -> false
-  | ToiDir _ | HattenDir _ -> true
+  | Toi(Dir, _) | Hatten(Dir, _) -> false
+  | _ -> true
 
 let filename_of = function
-  | Toi n -> Printf.sprintf "toi%d.ml" n
-  | ToiDir n -> Printf.sprintf "toi%d" n
-  | Hatten n -> Printf.sprintf "hatten%d.ml" n
-  | HattenDir n -> Printf.sprintf "hatten%d" n
+  | Toi(ML, n) -> Printf.sprintf "toi%d.ml" n
+  | Toi(Prolog, n) -> Printf.sprintf "toi%d.pl" n
+  | Toi(Dir, n) -> Printf.sprintf "toi%d" n
+  | Hatten(ML, n) -> Printf.sprintf "hatten%d.ml" n
+  | Hatten(Prolog, n) -> Printf.sprintf "hatten%d.pl" n
+  | Hatten(Dir, n) -> Printf.sprintf "hatten%d" n
 
 let subject_of t =
   match t, !Config.jp with
-  | (Toi n | ToiDir n), true -> "問" ^ string_of_int n
-  | (Toi n | ToiDir n), false -> "Toi " ^ string_of_int n
-  | (Hatten n | HattenDir n), true -> "発展" ^ string_of_int n
-  | (Hatten n | HattenDir n), false -> "Hatten " ^ string_of_int n
+  | Toi(_, n), true -> "問" ^ string_of_int n
+  | Toi(_, n), false -> "Toi " ^ string_of_int n
+  | Hatten(_, n), true -> "発展" ^ string_of_int n
+  | Hatten(_, n), false -> "Hatten " ^ string_of_int n
 
 let message_of r =
   match r, !Config.jp with
@@ -76,8 +78,8 @@ let message_of r =
   | File_not_found_after_build f, false -> Printf.sprintf "File %s not found after build" f
   | Type_mismatch v, true -> Printf.sprintf "%s の型が合っていません" v
   | Type_mismatch v, false -> Printf.sprintf "Type of %s is mismatched" v
-  | (Value_not_found x | Type_not_found x | Constructor_not_found x | Module_not_found x), true -> Printf.sprintf "%s が見つかりません" x
-  | (Value_not_found x | Type_not_found x | Constructor_not_found x | Module_not_found x), false -> Printf.sprintf "%s not found" x
+  | (Value_not_found x | Type_not_found x | Constructor_not_found x | Module_not_found x | Predicate_not_found x), true -> Printf.sprintf "%s が見つかりません" x
+  | (Value_not_found x | Type_not_found x | Constructor_not_found x | Module_not_found x | Predicate_not_found x), false -> Printf.sprintf "%s not found" x
   | Incorrect_result, true -> Printf.sprintf "結果が正しくありません"
   | Incorrect_result, false -> Printf.sprintf "Incorrect result"
   | Uncaught_exception, true -> Printf.sprintf "例外が発生しました"
