@@ -6,7 +6,6 @@ let id = ref ""
 let force = ref false
 let jp = ref true
 let file = ref ""
-let for_dir = ref false
 let build = ref "dune build"
 let executable = ref "main.exe"
 

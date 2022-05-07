@@ -25,13 +25,14 @@ let check_filename ?ext s =
         None
 
 let check_file_organization () =
-  let ext = if !Config.for_dir then None else Some "zip" in
+  let for_dir = Sys.is_directory !Config.file in
+  let ext = if for_dir then None else Some "zip" in
   match check_filename ?ext !Config.file with
   | None -> Error (File_name_invalid !Config.file)
   | Some id ->
       Config.id := id;
       let cmd =
-        if !Config.for_dir then
+        if for_dir then
           Printf.sprintf "cp -r %s %s" !Config.file Config.dir
         else
           Printf.sprintf "unzip -q -d %s %s" Config.dir !Config.file

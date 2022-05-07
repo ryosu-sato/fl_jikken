@@ -1,7 +1,6 @@
 let options =
   ["-f", Arg.Set Config.force, "";
    "-e", Arg.Clear Config.jp, "";
-   "-d", Arg.Set Config.for_dir, "";
    "-b", Arg.Set_string Config.build, ""]
 
 let set_file filename =
