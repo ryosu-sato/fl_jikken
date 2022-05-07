@@ -5,6 +5,7 @@ type t =
   | HattenDir of int
 
 type item =
+  (* Items for OCaml files *)
   | ValDef of string (* Check the existence of a value *)
   | Value of string * string (* Check the value of an expression *)
   | Type of string * string (* Check the type of an expression *)
@@ -16,6 +17,9 @@ type item =
   | CurryUncurry of string * string (* Just for Hatten 3 of the second lecture *)
   | Build of string option * string list (* Check the buildability *)
   | Exec of (string * string) list (* Check the behavior of the main. "Exec" must follow "Build" *)
+  (* Items for SWI-Prolog files *)
+  | Predicate of string * int (* Check the existence of a predicate *)
+  | Query of string * string list (* Check a query *)
 
 type 'a result =
   | OK of 'a

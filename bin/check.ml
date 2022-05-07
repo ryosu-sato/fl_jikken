@@ -92,14 +92,33 @@ let parse_output s =
       let len = String.length prefix in
       f @@ String.sub s len (String.length s - len)
 
-let eval_file filename x =
+let eval_prolog_file filename query =
+  let cmd = Printf.sprintf "swipl -s %s -g '%s.' -t halt" filename query in
+  let cin,cout = Unix.open_process cmd in
+  let ss = input_lines cin in
+  ignore @@ Unix.close_process (cin,cout);
+  let aux s =
+    let prefix = "ERROR: " in
+    if String.starts_with prefix s then
+      Either.Right (String.remove_prefix ~prefix s)
+    else
+      Either.Left s
+  in
+  let r,errors = List.partition_map aux ss in
+  debug "query: %s@." query;
+  List.iter (debug "output: %s@.") r;
+  List.iter (debug "errors: %s@.") errors;
+  debug "@.";
+  r, errors
+
+let eval_ml_file filename x =
   let cmd = Printf.sprintf "ocaml -noprompt -color never -init %s" filename in
   let cin,cout = Unix.open_process cmd in
   output_string cout (x ^ ";;\n");
   close_out cout;
   let s,ss_rev =
     match
-      Util.input_lines cin
+      input_lines cin
       |> normalize_output []
       |> List.rev
     with
@@ -122,27 +141,27 @@ let check_item filename ?(is_dir=Sys.is_directory filename) item =
   match item with
   | ValDef v ->
       begin
-        match eval_file filename v with
+        match eval_ml_file filename v with
         | Ok _ -> [OK None]
         | Error es -> es
       end
   | Value(x,v) ->
       begin
-        match eval_file filename x with
+        match eval_ml_file filename x with
         | Ok(v', _) when String.ends_with v' (" = " ^ v) -> [OK None]
         | Ok _ -> [Incorrect_result]
         | Error es -> es
       end
   | Type(v, ty) ->
       begin
-        match eval_file filename @@ Printf.sprintf "(%s : %s)" v ty with
+        match eval_ml_file filename @@ Printf.sprintf "(%s : %s)" v ty with
         | Ok _ -> [OK None]
         | Error (Type_mismatch _ :: es) -> Type_mismatch v :: es
         | Error es -> es
       end
   | TypeOpt(v, ty) ->
       begin
-        match eval_file filename @@ Printf.sprintf "(%s : %s)" v ty with
+        match eval_ml_file filename @@ Printf.sprintf "(%s : %s)" v ty with
         | Ok _ -> [OK (Some v)]
         | _ -> [OK None]
       end
@@ -158,26 +177,26 @@ let check_item filename ?(is_dir=Sys.is_directory filename) item =
             |> Printf.sprintf "(%s) "
       in
       begin
-        match eval_file filename @@ Printf.sprintf ("type %st = %s%s") param param ty with
+        match eval_ml_file filename @@ Printf.sprintf ("type %st = %s%s") param param ty with
         | Ok _ -> [OK None]
         | Error es -> es
       end
   | ModDef m ->
       begin
-        match eval_file filename ("module M = "^m) with
+        match eval_ml_file filename ("module M = "^m) with
         | Ok _ -> [OK None]
         | Error es -> es
       end
   | Module(m, ty) ->
       begin
-        match eval_file filename @@ Printf.sprintf "module M = (%s : %s)" m ty with
+        match eval_ml_file filename @@ Printf.sprintf "module M = (%s : %s)" m ty with
         | Ok _ -> [OK None]
         | Error (Type_mismatch _::es) -> Type_mismatch m::es
         | Error es -> es
       end
   | Excep e ->
       begin
-        match eval_file filename @@ Printf.sprintf "exception E = %s" e with
+        match eval_ml_file filename @@ Printf.sprintf "exception E = %s" e with
         | Ok _ -> [OK None]
         | Error es -> es
       end
@@ -185,10 +204,10 @@ let check_item filename ?(is_dir=Sys.is_directory filename) item =
       begin
         match
           let (let*) r f = Result.map f r in
-          let* _ = eval_file filename "curry" in
-          let* _ = eval_file filename "uncurry" in
-          let* s1 = eval_file filename @@ Printf.sprintf "%s %s" h f in
-          let* s2 = eval_file filename @@ Printf.sprintf "%s (curry (uncurry %s))" h f in
+          let* _ = eval_ml_file filename "curry" in
+          let* _ = eval_ml_file filename "uncurry" in
+          let* s1 = eval_ml_file filename @@ Printf.sprintf "%s %s" h f in
+          let* s2 = eval_ml_file filename @@ Printf.sprintf "%s (curry (uncurry %s))" h f in
           if s1 <> s2 then
             Ok("",[])
           else
@@ -234,14 +253,14 @@ let check_item filename ?(is_dir=Sys.is_directory filename) item =
           acc &&
             (output_string cout input;
              output_string cout "\n";
-             Util.debug "  input: %S@." input;
+             debug "  input: %S@." input;
              flush cout;
              let output =
                input_line cin
                |> String.trim
              in
-             Util.debug "  output:   %S@." output;
-             Util.debug "  expected: %S@." expected;
+             debug "  output:   %S@." output;
+             debug "  expected: %S@." expected;
              output = String.trim expected)
         in
         let r =
@@ -249,14 +268,25 @@ let check_item filename ?(is_dir=Sys.is_directory filename) item =
           | true -> OK None
           | false | exception _ -> Incorrect_result
         in
-        Util.debug "@.";
+        debug "@.";
         ignore @@ Unix.close_process_full (cin,cout,cerr);
         [r]
+  | Predicate(p, arity) ->
+      let query =
+        List.init arity (Printf.sprintf "X%d")
+        |> String.concat ","
+        |> Printf.sprintf "%s(%s)." p
+      in
+      begin
+      match eval_prolog_file filename query with
+      | _ -> assert false
+      end
+  | _ -> assert false
 
 let check_file t items =
   let is_dir = is_directory t in
   let filename = !Config.file_dir ^ "/" ^ filename_of t in
-  Util.debug "Check %s@." @@ subject_of t;
+  debug "Check %s@." @@ subject_of t;
   if not @@ Sys.file_exists filename then
     let path = Printf.sprintf "%02d-%s/%s" !Config.no !Config.id (filename_of t) in
     [if is_dir then Directory_not_found path else File_not_found path]

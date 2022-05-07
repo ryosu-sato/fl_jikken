@@ -97,5 +97,6 @@ let time () =
   let {Unix.tm_sec; tm_min; tm_hour; tm_mday; tm_mon; tm_year; _} = Unix.localtime @@ Unix.time() in
   Printf.sprintf "%04d%02d%02d%02d%02d%02d" (tm_year+1900) (tm_mon+1) tm_mday tm_hour tm_min tm_sec
 
+let debug_mode = Sys.getenv_opt "DEBUG" <> None
 let debug f =
-  if false then Format.printf f else Format.ifprintf Format.std_formatter f
+  if debug_mode then Format.printf f else Format.ifprintf Format.std_formatter f
