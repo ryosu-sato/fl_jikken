@@ -1,0 +1,21 @@
+opam-version: "2.0"
+name: "fl_jikken"
+synopsis: "MoCHi: Model Checker for Higher-Order Programs"
+authors: [ "Sato, Ryosuke <rsato@is.s.u-tokyo.ac.jp>" ]
+maintainer: ["Sato, Ryosuke <rsato@is.s.u-tokyo.ac.jp>"]
+homepage: ["https://github.com/ryosu-sato/fl_jikken"]
+bug-reports: ["https://github.com/ryosu-sato/fl_jikken/issues"]
+
+depends: [
+  "ocaml" {= "4.13.1"}
+  "ocamlfind"
+]
+
+build: [
+  ["dune" "build" "-p" name "-j" jobs]
+]
+
+install: [
+  ["dune" "install"]
+  ["ocamlfind" "install" "fl-jikken-unifier" "unifier/META" "unifier/constraintSolver.cmi" "unifier/constraintSolver.cmo" "unifier/constraintSolver.mli" "unifier/tySyntax.cmi" "unifier/tySyntax.cmo" "unifier/tySyntax.mli"]
+]

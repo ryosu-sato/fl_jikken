@@ -1,0 +1,4 @@
+(executable
+ (public_name fl_jikken)
+ (name main)
+ (libraries unix))
