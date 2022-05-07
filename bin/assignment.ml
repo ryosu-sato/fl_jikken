@@ -34,6 +34,7 @@ type 'a result =
   | Uncaught_exception
   | Object_file_found of string
   | Build_failed
+  | Unsupported_week_no of int
   | Unknown_error of string
 
 let is_directory = function
@@ -81,5 +82,7 @@ let message_of r =
   | Object_file_found s, false -> Printf.sprintf "Remove %s" s
   | Build_failed, true -> Printf.sprintf "ビルドに失敗しました"
   | Build_failed, false -> Printf.sprintf "Build failed"
+  | Unsupported_week_no n, true -> Printf.sprintf "第%d週の課題はサポートしていません" n
+  | Unsupported_week_no n, false -> Printf.sprintf "Not support: Week %d" n
   | Unknown_error s, true -> Printf.sprintf "不明なエラー (%s)" s
   | Unknown_error s, false -> Printf.sprintf "Unknown error (%s)" s

@@ -50,6 +50,13 @@ let assiginments =
    6, Week06.assignments;
    7, Week07.assignments]
 
+let assoc_assignments () =
+  try
+    List.assoc !Config.no assiginments
+  with Not_found ->
+         show_error_and_exit (Error (Unsupported_week_no !Config.no));
+         assert false
+
 let main () =
   init()
   |> show_error_and_exit;
@@ -59,7 +66,7 @@ let main () =
   Check.file_organization()
   |> show_error_and_exit;
 
-  List.assoc !Config.no assiginments
+  assoc_assignments()
   |> List.map (fun (t,items) -> t, items, Check.file t items)
   |> List.iter show_results;
 
