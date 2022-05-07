@@ -49,17 +49,23 @@ let check_file_organization () =
         else
           Ok ()
 
+let count_leading_spaces s =
+  let rec loop i c s =
+    if String.length s <= i || s.[i] <> ' ' then
+      c
+    else
+      loop (i+1) (c+1) s
+  in
+  loop 0 0 s
+
 let rec normalize_output acc_rev ss =
   match ss with
   | [] -> List.rev acc_rev
   | ""::ss' -> normalize_output acc_rev ss'
   | s::ss' when String.starts_with s "Hint: " -> normalize_output acc_rev ss'
-  | s::ss' when String.starts_with s "    " && acc_rev <> [] -> (* TODO: merge & genereralize with the next case *)
-      let s' = List.hd acc_rev ^ String.sub s 3 (String.length s - 3) in
-      let acc_rev' = s' :: List.tl acc_rev in
-      normalize_output acc_rev' ss'
   | s::ss' when String.starts_with s "  " && acc_rev <> [] ->
-      let s' = List.hd acc_rev ^ String.sub s 1 (String.length s - 1) in
+      let len = count_leading_spaces s in
+      let s' = List.hd acc_rev ^ String.sub s (len-1) (String.length s - len + 1) in
       let acc_rev' = s' :: List.tl acc_rev in
       normalize_output acc_rev' ss'
   | s::ss' when s.[0] = '=' && acc_rev <> [] ->

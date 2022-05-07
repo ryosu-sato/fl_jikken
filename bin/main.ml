@@ -48,7 +48,8 @@ let assiginments =
    4, Week04.assignments;
    5, Week05.assignments;
    6, Week06.assignments;
-   7, Week07.assignments]
+   7, Week07.assignments;
+   8, Week08.assignments]
 
 let assoc_assignments () =
   try
