@@ -9,5 +9,8 @@ let file = ref ""
 let build = ref "dune build"
 let executable = ref "main.exe"
 
+type mode = Check | Print_file_struct of int
+let mode = ref Check
+
 let report_name = "report"
 let report_exts = ["txt"; "md"; "pdf"]

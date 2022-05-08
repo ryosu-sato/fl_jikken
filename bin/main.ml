@@ -51,28 +51,58 @@ let assiginments =
     7, Week07.assignments;
     8, Week08.assignments;
     9, Week09.assignments;
-   10, Week10.assignments]
+   10, Week10.assignments;
+   11, Week11.assignments;
+   12, Week12.assignments;
+   13, []]
 
-let assoc_assignments () =
+let assoc_assignments n =
   try
-    List.assoc !Config.no assiginments
+    List.assoc n assiginments
   with Not_found ->
-         show_error_and_exit (Error (Unsupported_week_no !Config.no));
+         show_error_and_exit (Error (Unsupported_week_no n));
          assert false
+
+let print_file_struct n =
+  let dir = Format.sprintf "%02d-XXXXXX" n in
+  let files =
+    assoc_assignments n
+    |> List.map (fst |- filename_of)
+  in
+  let report =
+    Printf.sprintf "%s.{%s}" Config.report_name (String.concat "|" Config.report_exts)
+  in
+  let pr f =
+    if Filename.remove_extension f = f then
+      (Printf.printf "    ├── %s\n" f;
+       Printf.printf "    │   └── ...\n")
+    else
+      Printf.printf "    ├── %s\n" f
+  in
+  Printf.printf "%s.zip\n" dir;
+  Printf.printf "└── %s\n" dir;
+  List.iter pr files;
+  Printf.printf "    └── %s\n" report
 
 let main () =
   init()
   |> show_error_and_exit;
 
-  if !Config.file = "" then (Printf.printf "%s\n" Command_line.usage; exit 1);
+  match !Config.mode with
+  | Check ->
+      if !Config.file = "" then (Printf.printf "%s\n" Command_line.usage; exit 1);
 
-  Check.file_organization()
-  |> show_error_and_exit;
+      Check.file_organization()
+      |> show_error_and_exit;
 
-  assoc_assignments()
-  |> List.map (fun (t,items) -> t, items, Check.file t items)
-  |> List.iter show_results;
+      assoc_assignments !Config.no
+      |> List.map (fun (t,items) -> t, items, Check.file t items)
+      |> List.iter show_results;
 
-  finalize()
+      finalize()
+
+  | Print_file_struct n ->
+      print_file_struct n;
+      finalize()
 
 let () = if not !Sys.interactive then main()
