@@ -42,8 +42,8 @@ type 'a result =
   | Unknown_error of string
 
 let is_directory = function
-  | Toi(Dir, _) | Hatten(Dir, _) -> false
-  | _ -> true
+  | Toi(Dir, _) | Hatten(Dir, _) -> true
+  | _ -> false
 
 let filename_of = function
   | Toi(ML, n) -> Printf.sprintf "toi%d.ml" n
