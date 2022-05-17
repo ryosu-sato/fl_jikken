@@ -1,3 +1,4 @@
+let (|@>) x f = f x; x
 let (|-) f g x = g (f x)
 
 module List = struct

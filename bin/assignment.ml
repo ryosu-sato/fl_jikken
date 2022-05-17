@@ -10,7 +10,7 @@ type item =
   | Type of string * string (* Check the type of an expression *)
   | TypeOpt of string * string (* Check the type of an expression for optional problems *)
   | TypeDef of int * string (* Check the existence of a type *)
-  | ModDef of string (* Check the existence of a module *)
+  | ModDef of string * string option (* Check the existence of a module *)
   | Module of string * string (* Check the type of a module *)
   | Excep of string (* Check the existence of an exception *)
   | CurryUncurry of string * string (* Just for Hatten 3 of the second lecture *)

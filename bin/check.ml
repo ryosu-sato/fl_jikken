@@ -133,12 +133,14 @@ let eval_ml_file filename x =
   let s,ss_rev =
     match
       input_lines cin
+      |@> List.iter (debug "  output: %s@.")
       |> normalize_output []
       |> List.rev
     with
     | [] -> assert false
     | s::ss -> s, ss
   in
+  debug "@.";
   close_in cin;
   let result = parse_ocaml_output s in
   let errors =
@@ -195,10 +197,11 @@ let check_item filename ?(is_dir=Sys.is_directory filename) item =
         | Ok _ -> [OK None]
         | Error es -> es
       end
-  | ModDef m ->
+  | ModDef(m,e) ->
       begin
         match eval_ml_file filename ("module M = "^m) with
         | Ok _ -> [OK None]
+        | Error (Type_mismatch _::es) -> Type_mismatch (Option.value ~default:m e)::es
         | Error es -> es
       end
   | Module(m, ty) ->
