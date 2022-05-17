@@ -19,7 +19,7 @@ let exec_h1 = Exec ["let add x y = x + y;;",                       "# val add = 
 let exec_h3 = Exec ["let a = 10;;",              "# val a = 10";
                     "let f = dfun x -> x + a;;", "# val f = <fun>";
                     "let a = 20;;",              "# val a = 20";
-                    "f 10;;",                    "# - = 30"]
+                    "f 5;;",                     "# - = 25"]
 
 let build = Build(None, [])
 
