@@ -1,6 +1,6 @@
 How to install
 ==============
-opam pin add -y fl_jikken https://github.com/ryosu-sato/fl_jikken.git#main
+Run `opam pin add -y fl_jikken https://github.com/ryosu-sato/fl_jikken.git#main`
 
 
 How to use
