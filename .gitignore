@@ -1,3 +1,5 @@
+_fl_tmp_*
 _build/
+*.zip
 *~
 \#*
