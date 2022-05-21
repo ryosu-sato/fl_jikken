@@ -3,7 +3,7 @@ open Assignment
 
 let init () =
   Command_line.parse();
-  if not !Config.force && Sys.ocaml_version <> Config.version then
+  if not !Config.force && Sys.ocaml_version <> Config.ocaml_version then
     Error Version_mismatch
   else
     begin

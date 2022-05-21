@@ -64,8 +64,8 @@ let message_of r =
   match r, !Config.jp with
   | OK None, _ -> ""
   | OK (Some s), _ -> s
-  | Version_mismatch, true -> Printf.sprintf "OCaml %s で実行してください" Config.version
-  | Version_mismatch, false -> Printf.sprintf "Execute this program with OCaml %s." Config.version
+  | Version_mismatch, true -> Printf.sprintf "OCaml %s で実行してください" Config.ocaml_version
+  | Version_mismatch, false -> Printf.sprintf "Execute this program with OCaml %s." Config.ocaml_version
   | Cannot_extract, true -> Printf.sprintf "入力ファイルの展開に失敗しました"
   | Cannot_extract, false -> Printf.sprintf "Cannot extract the input file"
   | File_name_invalid f, true -> Printf.sprintf "ファイル名 %sが不正です" f
