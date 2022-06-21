@@ -306,8 +306,10 @@ let check_item filename ?(is_dir=Sys.is_directory filename) item =
       let r =
         if expect = rs then
           OK None
-        else
+        else if es <> [] then
           parse_prolog_error es
+        else
+          Incorrect_result
       in
       [r]
 
