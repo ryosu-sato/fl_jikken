@@ -97,7 +97,7 @@ let parse_prolog_error prev_is_warning error =
   | ["ERROR"; _s2; _s3; " Undefined procedure"; s5] ->
       `Error (Predicate_not_found (String.remove_prefix ~prefix:" " s5))
   | "Warning"::_ -> `Warning
-  | s::_ when prev_is_warning && String.starts_with s "        " -> `Warning
+  | s::_ when prev_is_warning && s.[0] = '\t' -> `Warning
   | _ -> `Error (Unknown_error error)
 let parse_prolog_errors es =
   let acc_rev,_ =
