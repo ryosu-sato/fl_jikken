@@ -96,9 +96,8 @@ let parse_prolog_error errors =
   match errors with
   | [] -> invalid_arg __FUNCTION__
   | e::_ ->
-      assert (String.starts_with e "ERROR: ");
       match String.split_on_char ':' e with
-      | ["ERROR"; _s2; _s3; " Undefined procedure"; s5] ->
+      | [("ERROR"|"errors"); _s2; _s3; " Undefined procedure"; s5] ->
           Predicate_not_found (String.remove_prefix ~prefix:" " s5)
       | _ -> Unknown_error e
 
