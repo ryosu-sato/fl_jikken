@@ -92,14 +92,13 @@ let parse_ocaml_output s =
       let len = String.length prefix in
       f @@ String.sub s len (String.length s - len)
 
-let parse_prolog_error errors =
-  match errors with
-  | [] -> invalid_arg __FUNCTION__
-  | e::_ ->
-      match String.split_on_char ':' e with
-      | [("ERROR"|"errors"); _s2; _s3; " Undefined procedure"; s5] ->
-          Predicate_not_found (String.remove_prefix ~prefix:" " s5)
-      | _ -> Unknown_error e
+let parse_prolog_error error =
+  match String.split_on_char ':' error with
+  | ["ERROR"; _s2; _s3; " Undefined procedure"; s5] ->
+      [Predicate_not_found (String.remove_prefix ~prefix:" " s5)]
+  | "Warning"::_ -> []
+  | _ -> [Unknown_error error]
+let parse_prolog_errors es = List.concat_map parse_prolog_error es
 
 let eval_prolog_file filename query =
   let cmd = Printf.sprintf "swipl -s %s -g '%s' -t halt" filename query in
@@ -293,24 +292,22 @@ let check_item filename ?(is_dir=Sys.is_directory filename) item =
         |> String.concat ","
         |> Printf.sprintf "%s(%s)." p
       in
-      let r =
-        match eval_prolog_file filename query with
-        | [],[] -> OK None
-        | [],es -> parse_prolog_error es
-        | _ -> assert false
-      in
-      [r]
+      let _rs,es = eval_prolog_file filename query in
+      if es = [] then
+        [OK None]
+      else
+        parse_prolog_errors es
   | Query(query, expect) ->
       let rs,es = eval_prolog_file filename query in
       let r =
         if expect = rs then
-          OK None
+          [OK None]
         else if es <> [] then
-          parse_prolog_error es
+          parse_prolog_errors es
         else
-          Incorrect_result
+          [Incorrect_result]
       in
-      [r]
+      r
 
 
 let check_file t items =
