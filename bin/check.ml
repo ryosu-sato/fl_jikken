@@ -92,13 +92,23 @@ let parse_ocaml_output s =
       let len = String.length prefix in
       f @@ String.sub s len (String.length s - len)
 
-let parse_prolog_error error =
+let parse_prolog_error prev_is_warning error =
   match String.split_on_char ':' error with
   | ["ERROR"; _s2; _s3; " Undefined procedure"; s5] ->
-      [Predicate_not_found (String.remove_prefix ~prefix:" " s5)]
-  | "Warning"::_ -> []
-  | _ -> [Unknown_error error]
-let parse_prolog_errors es = List.concat_map parse_prolog_error es
+      `Error (Predicate_not_found (String.remove_prefix ~prefix:" " s5))
+  | "Warning"::_ -> `Warning
+  | s::_ when prev_is_warning && String.starts_with s "        " -> `Warning
+  | _ -> `Error (Unknown_error error)
+let parse_prolog_errors es =
+  let acc_rev,_ =
+    ListLabels.fold_left es
+      ~init:([],false)
+      ~f:(fun (acc_rev,prev) e ->
+        match parse_prolog_error prev e with
+        | `Error e -> e::acc_rev, false
+        | `Warning -> acc_rev, true)
+  in
+  List.rev acc_rev
 
 let eval_prolog_file filename query =
   let cmd = Printf.sprintf "swipl -s %s -g '%s' -t halt" filename query in
