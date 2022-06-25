@@ -6,7 +6,8 @@ let options =
    "-e", Arg.Clear Config.jp, "";
    "-b", Arg.Set_string Config.build, "";
    "-p", Arg.Int (fun n -> Config.mode := Print_file_struct n), "";
-   "-v", Arg.Unit (fun () -> print_version (); exit 0), ""]
+   "-v", Arg.Unit (fun () -> print_version (); exit 0), "";
+   "--swipl", Arg.Set_string Config.swipl, ""]
 
 let set_file filename =
   if !Config.file <> "" then

@@ -1,4 +1,4 @@
-let version = "1.5.0"
+let version = "1.6.0"
 let no = ref 0
 let ocaml_version = "4.13.1"
 let dir = "_fl_tmp_" ^ Util.time()
@@ -9,6 +9,7 @@ let jp = ref true
 let file = ref ""
 let build = ref "dune build"
 let executable = ref "main.exe"
+let swipl = ref "swipl"
 
 type mode = Check | Print_file_struct of int
 let mode = ref Check

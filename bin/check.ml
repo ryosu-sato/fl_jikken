@@ -111,7 +111,7 @@ let parse_prolog_errors es =
   List.rev acc_rev
 
 let eval_prolog_file filename query =
-  let cmd = Printf.sprintf "swipl -s %s -g '%s' -t halt" filename query in
+  let cmd = Printf.sprintf "%s -s %s -g '%s' -t halt" !Config.swipl filename query in
   let cin,cout,cerr = Unix.open_process_full cmd [||] in
   let result = input_lines cin in
   let error = input_lines cerr in
