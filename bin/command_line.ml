@@ -4,10 +4,11 @@ let print_version () =
 let options =
   ["-f", Arg.Set Config.force, "";
    "-e", Arg.Clear Config.jp, "";
-   "-b", Arg.Set_string Config.build, "";
-   "-p", Arg.Int (fun n -> Config.mode := Print_file_struct n), "";
-   "-v", Arg.Unit (fun () -> print_version (); exit 0), "";
-   "--swipl", Arg.Set_string Config.swipl, ""]
+   "--build", Arg.Set_string Config.build, {|<command>  Use <command> to build ocaml projects instead of "dune build"|};
+   "-b", Arg.Set_string Config.build, " The same as --build";
+   "-p", Arg.Int (fun n -> Config.mode := Print_file_struct n), "<n>  Print the file structure for the assignment of Week <n>";
+   "-v", Arg.Unit (fun () -> print_version (); exit 0), " Output the version";
+   "--swipl", Arg.Set_string Config.swipl, "<command>  Set the path to SWI prolog"]
 
 let set_file filename =
   if !Config.file <> "" then
@@ -22,4 +23,4 @@ let set_file filename =
 
 let usage = Printf.sprintf "Usage: fl_jikken XX-YYYYYY.zip"
 
-let parse () = Arg.parse options set_file usage
+let parse () = Arg.parse (Arg.align options) set_file usage

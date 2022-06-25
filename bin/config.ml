@@ -1,4 +1,4 @@
-let version = "1.6.0"
+let version = "1.6.1"
 let no = ref 0
 let ocaml_version = "4.13.1"
 let dir = "_fl_tmp_" ^ Util.time()
