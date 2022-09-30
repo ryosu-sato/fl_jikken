@@ -1,6 +1,6 @@
 opam-version: "2.0"
 name: "fl_jikken"
-synopsis: "MoCHi: Model Checker for Higher-Order Programs"
+synopsis: "Check program for FL jikken"
 authors: [ "Sato, Ryosuke <rsato@is.s.u-tokyo.ac.jp>" ]
 maintainer: ["Sato, Ryosuke <rsato@is.s.u-tokyo.ac.jp>"]
 homepage: ["https://github.com/ryosu-sato/fl_jikken"]
